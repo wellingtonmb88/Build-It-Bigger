@@ -44,17 +44,24 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.google.code.findbugs:jsr305:2.0.1'
 
-    compile 'com.google.android.gms:play-services-ads:10.0.1'
+    freeCompile 'com.google.android.gms:play-services-ads:10.0.1'
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }
 
+task stopAppEngine {
+    dependsOn ":jokebackend:appengineStop"
+    doLast {
+        println "StopAppEngine Done"
+    }
+}
 
-task runAppEngineRunDaemonMode(dependsOn: [":jokebackend:appengineRun",":jokebackend:appengineStop"]) {
+task startAppEngineInDaemonMode(dependsOn: [":jokebackend:appengineStop",
+                                            ":jokebackend:appengineRun"]) {
     evaluationDependsOn ":jokebackend"
-    mustRunAfter(":jokebackend:appengineStop")
+    mustRunAfter ":jokebackend:appengineStop"
 
     project(":jokebackend") {
         appengine {
@@ -62,12 +69,14 @@ task runAppEngineRunDaemonMode(dependsOn: [":jokebackend:appengineRun",":jokebac
         }
     }
     doLast {
-        println "runAppEngineRunDaemonMode Done"
+        println "StartAppEngineInDaemonMode Done"
     }
 }
 
-task runConnectedAndroidTests(dependsOn: [":app:connectedAndroidTest", "runAppEngineRunDaemonMode"]) {
-    mustRunAfter runAppEngineRunDaemonMode
+task runConnectedAndroidTests(dependsOn: [":app:connectedAndroidTest",
+                                          "startAppEngineInDaemonMode"]) {
+    mustRunAfter startAppEngineInDaemonMode
+    finalizedBy stopAppEngine
     doLast {
         println "ConnectedAndroidTests Done"
     }

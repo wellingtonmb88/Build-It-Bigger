@@ -4,6 +4,7 @@ package com.udacity.gradle.builditbigger;
 import android.os.AsyncTask;
 
 import com.appspot.blackandwhitedevelop.jokeApi.JokeApi;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -11,16 +12,15 @@ import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import java.io.IOException;
 
-class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
-    private static final String ROOT_URL = "https://blackandwhitedevelop.appspot.com/_ah/api/";
+public class EndpointsAsyncTask extends AsyncTask<Void, Void, String> {
     private static JokeApi myApiService = null;
     private EndpointListener listener;
 
-    interface EndpointListener {
+    public interface EndpointListener {
         void onResultReceived(String result);
     }
 
-    void setListener(EndpointListener listener) {
+    public void setListener(EndpointListener listener) {
         this.listener = listener;
     }
 
