@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "24.0.3"
+
+    defaultConfig {
+        applicationId "com.udacity.gradle.builditbigger"
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    productFlavors {
+        free {
+            applicationId "com.udacity.gradle.builditbigger.free"
+        }
+        paid {
+            applicationId "com.udacity.gradle.builditbigger.paid"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "ROOT_URL", '"https://blackandwhitedevelop.appspot.com/_ah/api/"'
+        }
+
+        debug {
+            buildConfigField "String", "ROOT_URL", '"http://10.0.2.2:8080/_ah/api/"'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile project(':jokescreen')
+    compile project(path: ':jokebackend', configuration: 'android-endpoints')
+
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.google.code.findbugs:jsr305:2.0.1'
+
+    compile 'com.google.android.gms:play-services-ads:10.0.1'
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+}
+
+
+task runAppEngineRunDaemonMode(dependsOn: [":jokebackend:appengineRun",":jokebackend:appengineStop"]) {
+    evaluationDependsOn ":jokebackend"
+    mustRunAfter(":jokebackend:appengineStop")
+
+    project(":jokebackend") {
+        appengine {
+            daemon true
+        }
+    }
+    doLast {
+        println "runAppEngineRunDaemonMode Done"
+    }
+}
+
+task runConnectedAndroidTests(dependsOn: [":app:connectedAndroidTest", "runAppEngineRunDaemonMode"]) {
+    mustRunAfter runAppEngineRunDaemonMode
+    doLast {
+        println "ConnectedAndroidTests Done"
+    }
+}
